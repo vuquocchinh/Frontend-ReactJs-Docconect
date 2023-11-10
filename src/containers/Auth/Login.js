@@ -3,6 +3,10 @@ import { connect } from 'react-redux';
 import { push } from "connected-react-router";
 import * as actions from "../../store/actions";
 import './Login.scss';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+
+import { faEye } from '@fortawesome/free-solid-svg-icons';
 import {
     MDBBtn,
     MDBContainer,
@@ -13,9 +17,7 @@ import {
     MDBInput,
     MDBCheckbox,
     MDBIcon
-}
-    from 'mdb-react-ui-kit';
-import { every } from 'lodash';
+} from 'mdb-react-ui-kit';
 
 
 class Login extends Component {
@@ -24,57 +26,81 @@ class Login extends Component {
         this.state = {
             username: '',
             password: '',
+            showPassword: false, // Sử dụng để ẩn/hiện mật khẩu
         }
     }
+
     HandleOnchangeUsername = (event) => {
         this.setState({
             username: event.target.value
         })
     }
+
     HandleOnchangePassword = (event) => {
         this.setState({
             password: event.target.value
         })
     }
+
+    toggleShowPassword = () => {
+        this.setState((prevState) => ({
+            showPassword: !prevState.showPassword
+        }));
+    }
+
     handleLogin = () => {
         console.log('Username :' + this.state.username, 'password :' + this.state.password)
     }
+
     render() {
         return (
-            <MDBContainer fluid className='p-4 background-radial-gradient overflow-hidden'>
+            <MDBContainer fluid className='background-radial-gradient  overflow-hidden'>
 
                 <MDBRow>
 
-                    <MDBCol md='6' className='text-center text-md-start d-flex flex-column justify-content-center'>
+                    <MDBCol md='6' className='text-center text-md-start d-flex flex-column justify-content-center' style={{ borderBottom: '240px solid transparent' }}>
 
-                        <h1 className="my-5 display-3 fw-bold ls-tight px-3" style={{ color: 'hsl(218, 81%, 95%)' }}>
-                            Your health <br />
-                            <span style={{ color: 'hsl(218, 81%, 75%)' }}>our top priority</span>
+                        <h1 className="my-5 display-3 fw-bold ls-tight px-3" style={{ color: 'hsl(218, 81%, 95%)', paddingTop: '55px' }}>
+                            Sức khoẻ của bạn <br />
+                            <span style={{ color: 'hsl(218, 81%, 75%)' }}>ưu tiên hàng đầu của chúng tôi</span>
                         </h1>
 
-                        <p className='px-3' style={{ color: 'hsl(218, 81%, 85%)' }}>
+                        <p className='px-8' style={{ color: 'hsl(218, 81%, 85%)' }}>
                             DocConnect là một giải pháp vượt trội cho nhu cầu thông báo lịch hẹn và tương tác với bệnh nhân của bạn. Với hàng thập kỷ kinh nghiệm trong ngành, chúng tôi sở hữu sự chuyên nghiệp và khả năng vượt trội so với người khác. Cho dù bạn cần thông báo lịch hẹn tiêu chuẩn hay một giải pháp tùy chỉnh, hãy liên hệ với chúng tôi và để chúng tôi giúp bạn giảm tỷ lệ bỏ hẹn, đồng thời tăng doanh thu và sự hài lòng của bệnh nhân của bạn
                         </p>
 
                     </MDBCol>
 
-                    <MDBCol md='6' className='position-relative'>
+                    <MDBCol md='6' className='position-relative' style={{ paddingTop: '65px' }}>
 
                         <div id="radius-shape-1" className="position-absolute rounded-circle shadow-5-strong"></div>
                         <div id="radius-shape-2" className="position-absolute shadow-5-strong"></div>
 
-                        <MDBCard className='my-5 bg-glass'>
-                            <MDBCardBody className='p-5'>
+                        <MDBCard className='my-5 bg-glass' >
+                            <MDBCardBody className='p-5' >
 
                                 <MDBInput wrapperClass='mb-4' label='Username' id='form3' type='username'
                                     name='username' value={this.state.username} onChange={(event) => this.HandleOnchangeUsername(event)} />
-                                <MDBInput className='form-control' wrapperClass='mb-4' label='Password' id='form4' type='password'
-                                    name='password' value={this.state.password} onChange={(event) => this.HandleOnchangePassword(event)} />
 
+                                <div className='custom-input-password'>
+                                    <MDBInput
+                                        wrapperClass='mb-0'
+                                        label='Password'
+                                        id='form4'
+                                        type={this.state.showPassword ? 'text' : 'password'} // Ẩn/hiện mật khẩu dựa trên trạng thái
+                                        name='password'
+                                        value={this.state.password}
+                                        onChange={(event) => this.HandleOnchangePassword(event)}
+                                    />
+                                    <FontAwesomeIcon
+                                        icon={this.state.showPassword ? faEye : faEyeSlash}
+                                        className={`eye-icon ${this.state.showPassword ? 'active' : ''}`}
+                                        onClick={this.toggleShowPassword}
+                                    />
 
-                                <div className='d-flex justify-content-center mb-4'>
-                                    <MDBCheckbox name='flexCheck' value='' id='flexCheckDefault' label='Subscribe to our newsletter' />
                                 </div>
+
+
 
                                 <MDBBtn className='w-100 mb-4' size='md' onClick={() => { this.handleLogin() }} >Login</MDBBtn>
 
@@ -107,10 +133,11 @@ class Login extends Component {
 
                 </MDBRow>
 
-            </MDBContainer>
+            </MDBContainer >
         );
     }
 }
+
 const mapStateToProps = state => {
     return {
         language: state.app.language
