@@ -5,8 +5,9 @@ import * as actions from "../../store/actions";
 import './Login.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-
+import { handleLoginApi } from '../../services/userService';
 import { faEye } from '@fortawesome/free-solid-svg-icons';
+
 import {
     MDBBtn,
     MDBContainer,
@@ -27,6 +28,7 @@ class Login extends Component {
             username: '',
             password: '',
             showPassword: false, // Sử dụng để ẩn/hiện mật khẩu
+            errMessage: '' // Sử dụng để hiển thị lỗi
         }
     }
 
@@ -48,8 +50,31 @@ class Login extends Component {
         }));
     }
 
-    handleLogin = () => {
-        console.log('Username :' + this.state.username, 'password :' + this.state.password)
+    handleLogin = async () => {
+        this.setState({ errMessage: '' })
+        try {
+            let data = await handleLoginApi(this.state.username, this.state.password);
+            if (data && data.errCode !== 0) {
+                this.setState({
+                    errMessage: data.message
+                })
+            }
+            if (data && data.errCode === 0) {
+                // Lưu thông tin user vào redux
+                this.props.userLoginSuccess(data.user)
+                console.log('login success')
+            }
+        } catch (error) {
+            if (error.response) {
+                if (error.response.data) {
+                    this.setState({
+                        errMessage: error.response.data.message
+                    })
+
+                }
+
+            }
+        }
     }
 
     render() {
@@ -79,12 +104,15 @@ class Login extends Component {
                         <MDBCard className='my-5 bg-glass' >
                             <MDBCardBody className='p-5' >
 
-                                <MDBInput wrapperClass='mb-4' label='Username' id='form3' type='username'
+                                <MDBInput wrapperClass='mb-2' label='Username' id='form3' type='username'
                                     name='username' value={this.state.username} onChange={(event) => this.HandleOnchangeUsername(event)} />
+                                <div className='col-12' style={{ color: 'red', marginBottom: '12px' }}>
+                                    {this.state.errMessage}
+                                </div>
 
                                 <div className='custom-input-password'>
                                     <MDBInput
-                                        wrapperClass='mb-0'
+                                        wrapperClass='mb-4'
                                         label='Password'
                                         id='form4'
                                         type={this.state.showPassword ? 'text' : 'password'} // Ẩn/hiện mật khẩu dựa trên trạng thái
@@ -147,8 +175,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         navigate: (path) => dispatch(push(path)),
-        adminLoginSuccess: (adminInfo) => dispatch(actions.adminLoginSuccess(adminInfo)),
-        adminLoginFail: () => dispatch(actions.adminLoginFail()),
+        // userLoginFail: () => dispatch(actions.adminLoginFail()),
+        userLoginSuccess: (userInfor) => dispatch(actions.userLoginSuccess(userInfor))
     };
 };
 
