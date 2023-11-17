@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import './UserManage.scss';
-import { getAllUsers, createNewUserService, deleteUserService } from '../../services/userService';
+import { getAllUsers, createNewUserService, deleteUserService, editUserService } from '../../services/userService';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import ModalUser from './ModalUser';
 import { emitter } from '../../utils/emitter';
+import ModalEditUser from './ModalEditUser';
+import { Modal } from 'reactstrap';
+import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 
 
@@ -17,6 +19,8 @@ class UserManage extends Component {
         this.state = {
             arrUsers: [],
             isOpenModalUser: false,
+            isOpenModalEditUser: false,
+            userEdit: {}
 
         };
     }
@@ -42,6 +46,12 @@ class UserManage extends Component {
             isOpenModalUser: !this.state.isOpenModalUser,
         })
     }
+    toggleUserEditModal = () => {
+        this.setState({
+            isOpenModalEditUser: !this.state.isOpenModalEditUser,
+        })
+    }
+
     createNewUser = async (data) => {
         try {
             let res = await createNewUserService(data);
@@ -74,6 +84,32 @@ class UserManage extends Component {
             console.log(e);
         }
     }
+    handleEditUser = (user) => {
+        console.log('check edit user', user);
+        this.setState({
+            isOpenModalEditUser: true,
+            userEdit: user
+        })
+    }
+    DoEditUser = async (user) => {
+        try {
+            let res = await editUserService(user);
+            console.log('click save', res);
+            if (res && res.errCode === 0) {
+                this.setState({
+                    isOpenModalEditUser: false,
+                })
+                await this.getAllUsersFromReact();
+            }
+            else {
+                alert(res.errMessage);
+            }
+        } catch (e) {
+            console.log(e);
+
+        }
+
+    }
 
     render() {
         let arrUsers = this.state.arrUsers;
@@ -84,6 +120,15 @@ class UserManage extends Component {
                     toogleFromParent={this.toggleUserModal}
                     createNewUser={this.createNewUser}
                 />
+                {this.state.isOpenModalEditUser &&
+                    <ModalEditUser
+                        isOpen={this.state.isOpenModalEditUser}
+                        toogleFromParent={this.toggleUserEditModal}
+                        currentUser={this.state.userEdit}
+                        editUser={this.DoEditUser}
+
+                    />
+                }
                 <div className="title text-center">Manage users</div>
                 <div class="col-xs-7">
                     <a href="#" className="btn btn-primary px-4" onClick={() => this.handleaddNewUser()} style={{ marginLeft: '15px' }} ><i className="fa fa-plus" aria-hidden="true"></i>
@@ -102,6 +147,9 @@ class UserManage extends Component {
                         </tr>
                     </thead>
                     <tbody>
+
+                        // ...
+
                         {arrUsers && arrUsers.map((item, index) => {
                             return (
                                 <tr key={index}>
@@ -121,12 +169,13 @@ class UserManage extends Component {
                                         {item.roleId === 0 ? 'Admin' : 'Bác sĩ  '}
                                     </td>
                                     <td>
-                                        <button onClick={() => console.log('Settings clicked')} title="Settings" data-toggle="tooltip">
-                                            <FontAwesomeIcon icon={faEdit} className="action-icon" />
+                                        <button className='btn btn-info square-button' style={{ padding: '2px' }} onClick={() => this.handleEditUser(item)} title="Edit" >
+                                            <FontAwesomeIcon icon={faEdit} />
                                         </button>
-                                        <button onClick={() => this.handleDeleteUser(item)} title="Delete" >
-                                            <FontAwesomeIcon icon={faTrash} className="action-icon" />
+                                        <button className='btn btn-danger square-button' style={{ padding: '2px', marginLeft: '5px' }} onClick={() => this.handleDeleteUser(item)} title="Delete" >
+                                            <FontAwesomeIcon icon={faTrash} />
                                         </button>
+
                                     </td>
                                 </tr>
                             );
