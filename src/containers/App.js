@@ -5,6 +5,7 @@ import { ConnectedRouter as Router } from 'connected-react-router';
 import { history } from '../redux'
 import { ToastContainer } from 'react-toastify';
 import HomePage from './HomePage/HomePage.js';
+import CustomScrollbars from '../components/CustomScrollbars.js';
 
 
 import { userIsAuthenticated, userIsNotAuthenticated } from '../hoc/authentication';
@@ -48,6 +49,19 @@ class App extends Component {
                     <div className="main-container">
                         <ConfirmModal />
                         {this.props.isLoggedIn && <Header />}
+                        <div className="content-container">
+                            <CustomScrollbars style={{ height: '100vh', width: '100%' }}>
+                                <Switch>
+                                    <Route path={path.HOME} exact component={(Home)} />
+                                    <Route path={path.LOGIN} component={userIsNotAuthenticated(Login)} />
+                                    <Route path={path.SYSTEM} component={userIsAuthenticated(System)} />
+
+                                    <Route path={path.HOMEPAGE} component={HomePage} />
+
+
+                                </Switch>
+                            </CustomScrollbars>
+                        </div>
 
                         <span className="content-container">
                             <Switch>
